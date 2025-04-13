@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import FloatingCircles from "./FloatingCircles";
 
-const AnimatedSection = ({ children, isActive }) => {
+const AnimatedSection = ({ children, isActive } : any) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 200, scale: 0.95 }}
@@ -32,7 +32,7 @@ const AnimatedSection = ({ children, isActive }) => {
   );
 };
 
-const ScrollPresentation = ({ components }) => {
+const ScrollPresentation = ({ components } : any) => {
   const [currentSection, setCurrentSection] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
 
@@ -97,7 +97,7 @@ const ScrollPresentation = ({ components }) => {
       overflowY: "scroll",
       position: "relative"
     }}>
-      {components.map((Component, index) => (
+      {components.map((Component : any, index : any) => (
         <div 
           key={index}
           id={`section-${index}`}

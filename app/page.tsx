@@ -10,11 +10,13 @@ import ImagesSlider from "./components/ImagesSlider";
 import ScrollPresentation from "./components/ScrollPresentation";
 import DeNovoIntro from "./components/DeNovoIntro";
 import DeNovoMethodology from "./components/DeNovoMethodology";
+import ResultsSection from "./components/ResultsSection";
+import TechnologiesUsed from "./components/TechnologiesUsed";
 
 export default function Home() {
   return (
     <div className="relative min-h-screen darkBG">
-      <ScrollPresentation components={[ImagesSlider, DeNovoIntro, DeNovoMethodology , Tets]}/>
+      <ScrollPresentation components={[ImagesSlider, DeNovoIntro, DeNovoMethodology , ResultsSection , TechnologiesUsed ,Tets]}/>
     </div>
   );
 }

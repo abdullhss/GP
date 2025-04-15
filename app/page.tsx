@@ -16,7 +16,7 @@ import TechnologiesUsed from "./components/TechnologiesUsed";
 export default function Home() {
   return (
     <div className="relative min-h-screen darkBG">
-      <ScrollPresentation components={[ImagesSlider, DeNovoIntro, DeNovoMethodology , ResultsSection , TechnologiesUsed ,Tets]}/>
+      <ScrollPresentation components={[ImagesSlider, DeNovoIntro, DeNovoMethodology , ResultsSection , TechnologiesUsed]}/>
     </div>
   );
 }

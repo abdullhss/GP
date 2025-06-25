@@ -51,13 +51,13 @@ export default function ImagesSlider() {
             </span>
             <h1 className="text-white text-4xl">De novo Drug Discovery</h1>
 
-            <Link href="/main" passHref>
+            <Link href="/runs" passHref>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Get Started →
+                Get Started
               </motion.button>
             </Link>
           </motion.div>

@@ -1,9 +1,9 @@
-// This file will become `runs/index.tsx`
-
 "use client";
-
+import axios from "axios";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 
 type Run = {
     id: number;
@@ -28,26 +28,26 @@ export default function RunsIndexPage() {
     const [runs, setRuns] = useState<Run[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [priors, setPriors] = useState<Prior[]>([]);
-    const [scorerTypes, setScorerTypes] = useState<ScorerType[]>([]);
+    
+    const [title, setTitle] = useState("");
+    const [modelName, setModelName] = useState("");
+    const [selectedPriorId, setSelectedPriorId] = useState<number | null>(null);
+    
+    
+    const router = useRouter() ; 
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [runsRes, priorsRes, scorersRes] = await Promise.all([
-                    fetch("/api/runs"),
-                    fetch("/api/priors"),
-                    fetch("/api/scorers/types"),
+                const baseURL = process.env.NEXT_PUBLIC_API_URL;
+                
+                const [runsRes, priorsRes ] = await Promise.all([
+                    axios.get(`${baseURL}runs`),
+                    axios.get(`${baseURL}priors`),
                 ]);
 
-                const [runsData, priorsData, scorerTypesData] = await Promise.all([
-                    runsRes.json(),
-                    priorsRes.json(),
-                    scorersRes.json(),
-                ]);
-
-                setRuns(runsData);
-                setPriors(priorsData);
-                setScorerTypes(scorerTypesData);
+                setRuns(runsRes.data);
+                setPriors(priorsRes.data);
             } catch (err) {
                 console.error("Error fetching data:", err);
             }
@@ -55,6 +55,30 @@ export default function RunsIndexPage() {
 
         fetchData();
     }, []);
+
+
+    const handleCreateRun = async () => {
+    try {
+        const baseURL = process.env.NEXT_PUBLIC_API_URL;
+        await axios.post(`${baseURL}runs/create`, {
+            title,
+            priod_id: selectedPriorId,
+            model_name: modelName,
+        });
+
+        setShowModal(false);
+        setTitle("");
+        setModelName("");
+        setSelectedPriorId(null);
+
+        const runsRes = await axios.get(`${baseURL}runs`);
+        setRuns(runsRes.data);
+    } catch (err) {
+        console.error("Error creating run:", err);
+    }
+};
+
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#0f0f0f] to-[#1f1f1f] text-white px-8 py-10 font-sans">
@@ -80,26 +104,22 @@ export default function RunsIndexPage() {
                                 <th>Run Title</th>
                                 <th>Model Name</th>
                                 <th>Created At</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody className="text-white/90">
                             {runs.map((run) => (
                                 <tr
+                                    onClick={()=>{
+                                        localStorage.setItem("title",run.title)
+                                        localStorage.setItem("date",run.creation_date)
+                                        router.push(`/runs/${run.id}`)
+                                    }}
                                     key={run.id}
                                     className="bg-white/5 hover:bg-cyan-600/10 transition rounded-lg"
                                 >
                                     <td className="py-2 px-3">{run.title}</td>
                                     <td className="py-2 px-3">{run.model?.name}</td>
                                     <td className="py-2 px-3">{new Date(run.creation_date).toLocaleDateString()}</td>
-                                    <td className="py-2 px-3">
-                                        <Link
-                                            href={`/runs/${run.id}`}
-                                            className="text-cyan-400 hover:underline"
-                                        >
-                                            Manage
-                                        </Link>
-                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -111,27 +131,29 @@ export default function RunsIndexPage() {
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
                         <div className="bg-white/10 backdrop-blur-md p-6 rounded-xl w-full max-w-lg border border-cyan-400/30">
                             <h2 className="text-lg font-semibold text-cyan-300 mb-4">Create New Run</h2>
-                            <select className="w-full mb-3 bg-black/20 border border-cyan-300 rounded-md px-3 py-2 text-white">
-                                <option>Select Prior</option>
+                            <select
+                                className="w-full mb-3 bg-black/20 border border-cyan-300 rounded-md px-3 py-2 text-white"
+                                value={selectedPriorId ?? ""}
+                                onChange={(e) => setSelectedPriorId(Number(e.target.value))}
+                            >
+                                <option value="">Select Prior</option>
                                 {priors.map((p) => (
                                     <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
-
-                            <select className="w-full mb-3 bg-black/20 border border-purple-300 rounded-md px-3 py-2 text-white">
-                                <option>Select Scorer Type</option>
-                                {scorerTypes.map((s) => (
-                                    <option key={s.id} value={s.id}>{s.title}</option>
                                 ))}
                             </select>
 
                             <input
                                 className="w-full mb-3 bg-black/20 border border-pink-300 rounded-md px-3 py-2 text-white"
                                 placeholder="Run Title"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
                             />
+
                             <input
                                 className="w-full mb-4 bg-black/20 border border-pink-300 rounded-md px-3 py-2 text-white"
                                 placeholder="Model Name"
+                                value={modelName}
+                                onChange={(e) => setModelName(e.target.value)}
                             />
 
                             <div className="flex justify-end space-x-2">
@@ -141,7 +163,10 @@ export default function RunsIndexPage() {
                                 >
                                     Cancel
                                 </button>
-                                <button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-md">
+                                <button
+                                    className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-md"
+                                    onClick={handleCreateRun}
+                                >
                                     Create
                                 </button>
                             </div>

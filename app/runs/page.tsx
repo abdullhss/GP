@@ -29,7 +29,6 @@ export default function RunsIndexPage() {
     const [showModal, setShowModal] = useState(false);
     const [priors, setPriors] = useState<Prior[]>([]);
     
-    const [title, setTitle] = useState("");
     const [modelName, setModelName] = useState("");
     const [selectedPriorId, setSelectedPriorId] = useState<number | null>(null);
     
@@ -61,13 +60,11 @@ export default function RunsIndexPage() {
     try {
         const baseURL = process.env.NEXT_PUBLIC_API_URL;
         await axios.post(`${baseURL}runs/create`, {
-            title,
-            priod_id: selectedPriorId,
+            prior_id: selectedPriorId,
             model_name: modelName,
         });
 
         setShowModal(false);
-        setTitle("");
         setModelName("");
         setSelectedPriorId(null);
 
@@ -141,13 +138,6 @@ export default function RunsIndexPage() {
                                     <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
                             </select>
-
-                            <input
-                                className="w-full mb-3 bg-black/20 border border-pink-300 rounded-md px-3 py-2 text-white"
-                                placeholder="Run Title"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                            />
 
                             <input
                                 className="w-full mb-4 bg-black/20 border border-pink-300 rounded-md px-3 py-2 text-white"
